@@ -1,0 +1,74 @@
+REMEMBER: YOU NEED TO CD TO THE SCRAPERS DIRECTORY TO RUN
+
+Managment Dashboard:
+http://localhost:15672
+Login:
+guest
+guest
+
+Frontend host link:
+http://localhost:8080
+
+Database host link:
+http://localhost:5001/api/data
+
+
+Build and run updated services / TOGGLE TO DEFAULT:
+docker-compose up --build -d
+
+TOGGLE TO SELENIUM VERSION:
+docker-compose -f docker-compose.yml -f docker-compose.selenium.yml up --build -d
+
+Send URLs to PDF scraper:
+python3 scheduler.py urls.txt pdf_task_queue
+
+Copy output files to desktop folder named first:
+docker cp pdf-processor-1:output /Users/x/Desktop/first
+
+TO RETREIVE OR DELETE THE PDFS EASIEST USE DOCKER DESKTOP, 
+	CONTAINER "pdf-processor-1" 
+	output volume
+
+
+
+
+OTHER COMMANDS AND INFO:
+
+Launch Backend Services:
+docker-compose up -d
+
+Check Database Logs to Ensure connections:
+docker-compose logs db
+
+Check scraper services logs:
+docker-compose logs scraper
+
+Recreate container after editing docker-compose.yml
+docker-compose up -d --force-recreate
+
+Find PDF output location:
+docker volume inspect <your_project_directory_name>_pdf_output
+docker volume inspect Web_scraper_pdf_output
+
+
+
+
+TESTING INSTRUCTIONS:
+Publish a Test Task to RabbitMQ
+Now we need to add a message to the task_queue for our scraper to process. The easiest way to do this is using the RabbitMQ management dashboard.
+
+Open your web browser and navigate to http://localhost:15672.
+
+Log in with the default credentials: Username: guest, Password: guest.
+
+Click on the "Queues and Streams" tab at the top.
+
+Click on the queue name task_queue in the list.
+
+Find and expand the "Publish message" section.
+
+In the "Payload" text box, enter a sample URL, for example: https://quotes.toscrape.com/
+
+Click the "Publish" button.
+
+This action places the URL string into the task_queue, ready to be picked up by a worker.

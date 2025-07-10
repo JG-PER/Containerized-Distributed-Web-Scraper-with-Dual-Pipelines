@@ -1,0 +1,18 @@
+# filename: docker-compose.selenium.yml
+
+services:
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    container_name: selenium-chrome
+    shm_size: 2g
+    networks:
+      - app-network
+
+  webcontentscraper:
+    build: ./selenium_scraper # <-- OVERRIDES the build path to use the SLOW scraper
+    environment:
+      - SELENIUM_HOST=selenium
+    depends_on:
+      selenium:
+        condition: service_started
+

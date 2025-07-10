@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraped Data Dashboard</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 2em; }
+        h1 { color: #444; }
+        #data-container { display: flex; flex-direction: column; gap: 1em; }
+        .data-item { background-color: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 1em; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .data-content { font-size: 1.1em; margin-bottom: 0.5em; }
+        .data-timestamp { font-size: 0.8em; color: #777; }
+        #error-message { color: #d9534f; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Live Scraped Data</h1>
+    <div id="data-container">
+        <p>Loading data...</p>
+    </div>
+    <div id="error-message"></div>
+
+    <script>
+        // This function runs when the page has finished loading
+        window.onload = function() {
+            // Fetch data from our backend API
+            fetch('http://localhost:5001/api/data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const container = document.getElementById('data-container');
+                    container.innerHTML = ''; // Clear the "Loading..." message
+
+                    if (data.length === 0) {
+                        container.innerHTML = '<p>No data has been scraped yet.</p>';
+                        return;
+                    }
+                    
+                    // Loop through each piece of data and create a display card for it
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'data-item';
+
+                        const contentP = document.createElement('p');
+                        contentP.className = 'data-content';
+                        contentP.textContent = item.content;
+
+                        const timeP = document.createElement('p');
+                        timeP.className = 'data-timestamp';
+                        // Format the date to be more readable
+                        const date = new Date(item.scraped_at);
+                        timeP.textContent = `Scraped at: ${date.toLocaleString()}`;
+
+                        div.appendChild(contentP);
+                        div.appendChild(timeP);
+                        container.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    // Display an error message if the API can't be reached
+                    const errorDiv = document.getElementById('error-message');
+                    errorDiv.textContent = `Failed to load data. Is the backend running? Error: ${error}`;
+                    document.getElementById('data-container').innerHTML = '';
+                });
+        };
+    </script>
+
+</body>
+</html>
